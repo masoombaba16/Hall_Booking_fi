@@ -2,7 +2,13 @@ const exp = require('express');
 const app = exp();
 const cors = require('cors');
 require('dotenv').config();
-app.use(cors('*'));
+app.use(
+  cors({
+    origin: "http://localhost:3000", 
+    credentials: true, 
+  })
+);
+
 const nodemailer=require('nodemailer')
 const mc = require('mongodb').MongoClient;
 const PORT = process.env.PORT;
@@ -47,8 +53,10 @@ mc.connect(process.env.DB_URL)
         const adminDB = client.db('admin');
         const hallCollections=adminDB.collection('halls');
         const hallBookings=bookings.collection('hall_bookings');
+        const usersCollection=bookings.collection('usersCollection');
         app.set('hallCollections',hallCollections)
         app.set('hallBookings', hallBookings);
+        app.set('usersCollection',usersCollection);
         app.listen(PORT, () => {
             console.log("Server is Listening on PORT:", PORT);
         });
