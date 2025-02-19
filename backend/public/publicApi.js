@@ -147,6 +147,112 @@ const sendConfirmationEmail = async (name, email) => {
 };
 
 
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+const sendOTPEmail = async (email, otp) => {
+  let mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "Password Reset OTP",
+    text: `Your OTP for password reset is: ${otp}. It will expire in 10 minutes.`,
+  };
+  await transporter.sendMail(mailOptions);
+};
+
+publicApi.post("/forgot-password", ExpressAsyncHandler(async (req, res) => {
+  const { email } = req.body;
+  const usersCollection = req.app.get("usersCollection");
+
+  const user = await usersCollection.findOne({ email });
+  if (!user) {
+    return res.status(400).json({ message: "Email not registered.", success: false });
+  }
+
+  const otp = ("" + Math.floor(100000 + Math.random() * 900000)); // 6-digit OTP
+  const otpExpiration = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+  await usersCollection.updateOne(
+    { email },
+    { $set: { resetOTP: otp, otpExpiration } }
+  );
+
+  await sendOTPEmail(email, otp);
+  res.json({ message: "OTP sent to registered email.", success: true });
+}));
+
+publicApi.post("/verify-otp", ExpressAsyncHandler(async (req, res) => {
+  const { email, otp } = req.body;
+  const usersCollection = req.app.get("usersCollection");
+
+  const user = await usersCollection.findOne({ email });
+  if (!user || user.resetOTP !== otp) {
+    return res.status(400).json({ message: "Invalid OTP.", success: false });
+  }
+
+  if (new Date() > new Date(user.otpExpiration)) {
+    return res.status(400).json({ message: "OTP has expired.", success: false });
+  }
+
+  res.json({ message: "OTP verified. Proceed to reset password.", success: true });
+}));
+const sendPasswordResetConfirmationEmail = async (name, email) => {
+  try {
+    let transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    let mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Password Reset Successful",
+      text: `Hi ${name},\n\nYour password has been successfully reset. If you did not perform this action, please contact our support immediately.\n\nRegards,\nAudi Booking, VNR VJIET.`,
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log("Password reset confirmation email sent to:", email);
+  } catch (error) {
+    console.error("Error sending password reset confirmation email:", error);
+  }
+};
+
+// Endpoint: Reset Password after OTP verification
+publicApi.post("/reset-password", ExpressAsyncHandler(async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+  const usersCollection = req.app.get("usersCollection");
+
+  const user = await usersCollection.findOne({ email });
+  if (!user || user.resetOTP !== otp) {
+    return res.status(400).json({ message: "Invalid OTP or email.", success: false });
+  }
+
+  if (new Date() > new Date(user.otpExpiration)) {
+    return res.status(400).json({ message: "OTP has expired.", success: false });
+  }
+
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  await usersCollection.updateOne(
+    { email },
+    { $set: { password: hashedPassword }, $unset: { resetOTP: "", otpExpiration: "" } }
+  );
+
+  // ✅ Send password reset confirmation email
+  await sendPasswordResetConfirmationEmail(user.name, email);
+
+  res.json({ message: "Password reset successful. A confirmation email has been sent.", success: true });
+}));
+
+
+
 publicApi.get('/validate-token', (req, res) => {
   const token = req.cookies.token; 
   
@@ -164,7 +270,6 @@ publicApi.get('/validate-token', (req, res) => {
       const mobile=decoded.mobile;
     
       const user={email,name,userType,mobile};
-      console.log(user)
     res.json({
       message: 'Token is valid',
       success: true,

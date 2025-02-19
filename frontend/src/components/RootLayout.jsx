@@ -93,10 +93,12 @@ function RootLayout() {
   const handleBooking = (slot) => {
     if (!user) {
       alert("You must log in first to make a booking!");
+      toggleLoginForm(); // ✅ Call the function instead of adding onClick
       return;
     }
     alert(`Booking ${slot} is successful!`);
   };
+  
 
   const toggleLoginForm = () => {
     setShowLoginForm(!showLoginForm);

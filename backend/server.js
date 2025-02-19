@@ -73,7 +73,6 @@ mc.connect(process.env.DB_URL)
             sameSite: 'Strict',
           });
       
-          console.log('Logout successful');
           res.status(200).json({ message: 'Logged out successfully' });
         } catch (error) {
           console.error('Unexpected error during logout:', error);
