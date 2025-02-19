@@ -55,7 +55,7 @@ publicApi.get('/get-availability', ExpressAsyncHandler(async (req, res) => {
 publicApi.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-    const usersCollection = req.app.get("usersCollection");
+    const usersCollection = req.app.get("clubCollections");
 
     const user = await usersCollection.findOne({ email });
     if (!user) {
@@ -98,19 +98,23 @@ const nodemailer = require('nodemailer');
 publicApi.post('/register', ExpressAsyncHandler(async (req, res) => {
   try {
     const data = req.body;
-    const usersCollection = req.app.get('usersCollection');
+    const clubCollections = req.app.get('clubCollections');
 
-    const found = await usersCollection.findOne({ email:data.email });
-    if (found) {
-      return res.status(400).json({ message: "User already exists.", success: false });
+    const found = await clubCollections.findOne({
+      $or: [{ email: data.email }, { clubname: data.clubname }]
+    });
+        if (found) {
+      return res.status(400).json({ message: "Club or Email already exists.", success: false });
     }
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
     data.password=hashedPassword;
-    const done = await usersCollection.insertOne(data);
+    const userType="club";
+    data.userType=userType;
+    const done = await clubCollections.insertOne(data);
 
     if (done.acknowledged) {
-      await sendConfirmationEmail(data.name, data.email);
+      await sendConfirmationEmail(data.clubname, data.email);
 
       return res.status(201).json({ message: "Registered successfully. A confirmation email has been sent.", success: true });
     } else {
@@ -135,8 +139,8 @@ const sendConfirmationEmail = async (name, email) => {
     let mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: "Registration Successful..",
-      text: `Hi ${name},\n\nThank you for Creating Account with us! Your account has been successfully created.\n\nRegards,\nAudi Booking,VNR VJIET.`,
+      subject: `${name} Registration Successful..`,
+      text: `Welcome ${name},\n\nThank you for Creating Account with us! Your account has been successfully created.Book your Event Halls Now on our Website.\n\nRegards,\nAudi Booking,VNR VJIET.`,
     };
 
     await transporter.sendMail(mailOptions);
@@ -167,17 +171,17 @@ const sendOTPEmail = async (email, otp) => {
 
 publicApi.post("/forgot-password", ExpressAsyncHandler(async (req, res) => {
   const { email } = req.body;
-  const usersCollection = req.app.get("usersCollection");
+  const clubCollections = req.app.get("clubCollections");
 
-  const user = await usersCollection.findOne({ email });
+  const user = await clubCollections.findOne({ email });
   if (!user) {
     return res.status(400).json({ message: "Email not registered.", success: false });
   }
 
-  const otp = ("" + Math.floor(100000 + Math.random() * 900000)); // 6-digit OTP
+  const otp = ("" + Math.floor(1000 + Math.random() * 9000));
   const otpExpiration = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-  await usersCollection.updateOne(
+  await clubCollections.updateOne(
     { email },
     { $set: { resetOTP: otp, otpExpiration } }
   );
@@ -188,9 +192,9 @@ publicApi.post("/forgot-password", ExpressAsyncHandler(async (req, res) => {
 
 publicApi.post("/verify-otp", ExpressAsyncHandler(async (req, res) => {
   const { email, otp } = req.body;
-  const usersCollection = req.app.get("usersCollection");
+  const clubCollections = req.app.get("clubCollections");
 
-  const user = await usersCollection.findOne({ email });
+  const user = await clubCollections.findOne({ email });
   if (!user || user.resetOTP !== otp) {
     return res.status(400).json({ message: "Invalid OTP.", success: false });
   }
@@ -214,8 +218,8 @@ const sendPasswordResetConfirmationEmail = async (name, email) => {
     let mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: "Password Reset Successful",
-      text: `Hi ${name},\n\nYour password has been successfully reset. If you did not perform this action, please contact our support immediately.\n\nRegards,\nAudi Booking, VNR VJIET.`,
+      subject: "Password Changed Successfully",
+      text: `Hello ${name},\n\nYour password has been successfully Changed. If you did not perform this action, please contact our support immediately.\n\nRegards,\nAudi Booking, VNR VJIET.`,
     };
 
     await transporter.sendMail(mailOptions);
@@ -225,37 +229,32 @@ const sendPasswordResetConfirmationEmail = async (name, email) => {
   }
 };
 
-// Endpoint: Reset Password after OTP verification
-publicApi.post("/reset-password", ExpressAsyncHandler(async (req, res) => {
-  const { email, otp, newPassword } = req.body;
-  const usersCollection = req.app.get("usersCollection");
+publicApi.post("/change-password", ExpressAsyncHandler(async (req, res) => {
+  const { email, newPassword } = req.body;
+  const clubCollections = req.app.get("clubCollections");
 
-  const user = await usersCollection.findOne({ email });
-  if (!user || user.resetOTP !== otp) {
-    return res.status(400).json({ message: "Invalid OTP or email.", success: false });
-  }
-
-  if (new Date() > new Date(user.otpExpiration)) {
-    return res.status(400).json({ message: "OTP has expired.", success: false });
+  const user = await clubCollections.findOne({ email });
+  if (!user) {
+    return res.status(400).json({ message: "Invalid email.", success: false });
   }
 
   const hashedPassword = await bcrypt.hash(newPassword, 10);
-  await usersCollection.updateOne(
+  await clubCollections.updateOne(
     { email },
     { $set: { password: hashedPassword }, $unset: { resetOTP: "", otpExpiration: "" } }
   );
 
   // ✅ Send password reset confirmation email
-  await sendPasswordResetConfirmationEmail(user.name, email);
+  await sendPasswordResetConfirmationEmail(user.clubname, email);
 
-  res.json({ message: "Password reset successful. A confirmation email has been sent.", success: true });
+  res.json({ message: "Password changed successfully. A confirmation email has been sent. Login Now to Access", success: true });
 }));
 
 
 
 publicApi.get('/validate-token', (req, res) => {
-  const token = req.cookies.token; 
-  
+  const token = req.cookies.token;
+
   if (!token) {
     return res.status(401).json({ message: 'No token provided', success: false });
   }
@@ -264,19 +263,14 @@ publicApi.get('/validate-token', (req, res) => {
     if (err) {
       return res.status(401).json({ message: 'Invalid token', success: false });
     }
-      const email=decoded.email;
-      const name=decoded.name;
-      const userType=decoded.userType;
-      const mobile=decoded.mobile;
-    
-      const user={email,name,userType,mobile};
     res.json({
       message: 'Token is valid',
       success: true,
-      user:user, 
+      user: decoded, 
     });
   });
 });
+
 
 module.exports = publicApi;
   

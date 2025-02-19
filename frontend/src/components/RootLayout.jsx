@@ -21,14 +21,21 @@ function RootLayout() {
   const bookings = useSelector((state) => state.bookings.bookingsData);
   const availability = useSelector((state) => state.bookings.availabilityData);
   const error = useSelector((state) => state.bookings.error);
-  const user = useSelector((state) => state.user.userData); // Get user data from Redux
+  const user = useSelector((state) => state.user.userData);
+  console.log("he :",user) // Get user data from Redux
   const formatDate = (date) => {
     const day = String(date.getDate()).padStart(2, "0");
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
   };
-
+  useEffect(() => {
+    if (user && user.clubname) {
+      console.log("Club Name after login:", user.clubname);
+    }
+  }, [user]);
+  
+  
   useEffect(() => {
     const validateToken = async () => {
       try {
@@ -36,7 +43,7 @@ function RootLayout() {
           withCredentials: true,
         });
         if (res.data && res.data.user) {
-          dispatch(setUserData(res.data.user)); // Set user data in Redux
+          dispatch(setUserData(res.data.user));
         }
       } catch (error) {
         console.error("Error validating token:", error);
@@ -135,10 +142,10 @@ function RootLayout() {
   return (
     <div>
 <header>
-  {user ? (
+  {user && user.clubname? (
     <>
-      <p className="user-greeting">{user.name}..!</p>
-      <button type="button" className="login-button" onClick={handleLogout}>
+<p className="user-greeting">{user?.clubname}..!</p>
+<button type="button" className="login-button" onClick={handleLogout}>
         Logout
       </button>
     </>

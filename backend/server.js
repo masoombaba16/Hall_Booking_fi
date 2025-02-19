@@ -51,9 +51,12 @@ mc.connect(process.env.DB_URL)
     .then(client => {
         const bookings=client.db('bookings');
         const adminDB = client.db('admin');
+        const clubs=client.db('clubs');
+        const clubCollections=clubs.collection('clubCollections');
         const hallCollections=adminDB.collection('halls');
         const hallBookings=bookings.collection('hall_bookings');
         const usersCollection=bookings.collection('usersCollection');
+        app.set('clubCollections',clubCollections);
         app.set('hallCollections',hallCollections)
         app.set('hallBookings', hallBookings);
         app.set('usersCollection',usersCollection);

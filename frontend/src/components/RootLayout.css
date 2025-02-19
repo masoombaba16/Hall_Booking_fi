@@ -13,6 +13,12 @@
     top: 22vh;
     width: 30%;
 }
+#login-now{
+  margin: auto;
+  font-weight:bold;
+  font-size: 20px;
+  font-style: italic;
+}
 .not-found{
     margin: auto;
     font-size: 20px;
@@ -103,5 +109,16 @@
     font-size: 18px;
     color: white;
   }
-
+.resend{
+  position: absolute;
+  bottom: 22px;
+  border-radius: 5px;
+  color: white;
+  left: 30px;
+  width: 100px;
+  padding: 10px;
+  background-color: #4caf50;
+  border: none;
+  cursor: pointer;
+}
   
