@@ -6,22 +6,22 @@ import Radio from "../external/Radio";
 import CalendarComponent from "./CalendarComponent";
 import "./RootLayout.css";
 import Card from "../external/Card";
-import { motion } from "framer-motion"; 
+import { motion } from "framer-motion";
 import FormLogin from "../external/FormLogin";
 import axios from "axios";
+import { setUserData } from "../slices/userSlice";
 
 function RootLayout() {
-  const [log, setLog] = useState(true);
   const [selectedOption, setSelectedOption] = useState("Bookings");
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [bookingStatus, setBookingStatus] = useState("");
-  const [showLoginForm, setShowLoginForm] = useState(false); 
+  const [showLoginForm, setShowLoginForm] = useState(false);
 
   const dispatch = useDispatch();
   const bookings = useSelector((state) => state.bookings.bookingsData);
   const availability = useSelector((state) => state.bookings.availabilityData);
   const error = useSelector((state) => state.bookings.error);
-
+  const user = useSelector((state) => state.user.userData); // Get user data from Redux
   const formatDate = (date) => {
     const day = String(date.getDate()).padStart(2, "0");
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -33,16 +33,33 @@ function RootLayout() {
     const validateToken = async () => {
       try {
         const res = await axios.get("http://localhost:5002/public/validate-token", {
-          withCredentials: true, 
+          withCredentials: true,
         });
-        console.log(res);
+        if (res.data && res.data.user) {
+          dispatch(setUserData(res.data.user)); // Set user data in Redux
+        }
       } catch (error) {
         console.error("Error validating token:", error);
       }
     };
-  
     validateToken();
-  }, [])
+  }, [dispatch]);
+  const handleLogout = () => {
+    fetch("http://localhost:5002/logout", {
+      method: 'GET',
+      credentials: 'include'  
+    })
+      .then(response => {
+        if (response.ok) {
+          window.location.href = "http://localhost:3000";  // Redirect after logout
+        } else {
+          console.error('Failed to logout');
+        }
+      })
+      .catch(error => console.error('Error:', error));
+  };
+  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -53,6 +70,7 @@ function RootLayout() {
 
         const bookingsData = await bookingsRes.json();
         const availabilityData = await availabilityRes.json();
+
         if (bookingsData.success) {
           dispatch(setBookings(bookingsData.hallBookings));
         } else {
@@ -71,6 +89,18 @@ function RootLayout() {
 
     fetchData();
   }, [dispatch]);
+
+  const handleBooking = (slot) => {
+    if (!user) {
+      alert("You must log in first to make a booking!");
+      return;
+    }
+    alert(`Booking ${slot} is successful!`);
+  };
+
+  const toggleLoginForm = () => {
+    setShowLoginForm(!showLoginForm);
+  };
 
   const filteredBookings = bookings
     .map((hall) => ({
@@ -100,46 +130,33 @@ function RootLayout() {
     };
   });
 
-  const handleBooking = (slot) => {
-    if (log) {
-      alert("You must log in first to make a booking!");
-      return;
-    }
-    alert(`Booking ${slot} is successful!`);
-  };
-
-  const toggleLoginForm = () => {
-    setShowLoginForm(!showLoginForm);
-    console.log("Show login form:", !showLoginForm);  // Debugging line
-  };
-  
-
   return (
     <div>
-      <header>
-  {log ? (
+<header>
+  {user ? (
+    <>
+      <p className="user-greeting">{user.name}..!</p>
+      <button type="button" className="login-button" onClick={handleLogout}>
+        Logout
+      </button>
+    </>
+  ) : (
     <button type="button" className="login-button" onClick={toggleLoginForm}>
       Login
     </button>
-  ) : (
-    <button type="button" className="login-button">Logout</button>
   )}
 </header>
 
-{showLoginForm && (
-  <>
-    <div className="overlay" onClick={toggleLoginForm}></div> 
-    <div className="login-form">
-      <FormLogin 
-        log={log}
-        setLog={setLog}
-        toggleLoginForm={toggleLoginForm}
-      />
-    </div>
-  </>
-)}
 
 
+      {showLoginForm && (
+        <>
+          <div className="overlay" onClick={toggleLoginForm}></div>
+          <div className="login-form">
+            <FormLogin toggleLoginForm={toggleLoginForm} />
+          </div>
+        </>
+      )}
 
       <main>
         <div className="info">
@@ -154,7 +171,6 @@ function RootLayout() {
         <CalendarComponent selectedDate={selectedDate} onDateChange={setSelectedDate} />
 
         {error && <p className="error">{error}</p>}
-
         {bookingStatus && <p className="success">{bookingStatus}</p>}
 
         <div className="data-container">
@@ -165,24 +181,22 @@ function RootLayout() {
                   <Card
                     key={index}
                     title={<>Hall Name: <i>{hall.hall_name.toUpperCase()}</i></>}
-                    details={
-                      hall.bookings.map((booking, i) => (
-                        <div key={booking.id || Math.random()}>
-                          <strong>Event:</strong> {booking.event_name} {" "}
-                          <a href={`/event/${booking.event_id}`} style={{ color: "blue", textDecoration: "underline" }}>
-                            Know more
-                          </a>
-                          <br />
-                          <strong>Slots:</strong> {booking.slot} | <strong>Timings:</strong> {booking.timings}
-                          <br />
-                          <strong>Booked By:</strong> {booking.booked_by}
-                          <br />
-                          <strong>Booked Date:</strong> {new Date(booking.booked_date).toLocaleDateString()} {" "}
-                          <strong>Time:</strong> {new Date(booking.booked_date).toLocaleTimeString()}
-                          {i !== hall.bookings.length - 1 && <hr />}
-                        </div>
-                      ))
-                    }
+                    details={hall.bookings.map((booking, i) => (
+                      <div key={booking.id || Math.random()}>
+                        <strong>Event:</strong> {booking.event_name} {" "}
+                        <a href={`/event/${booking.event_id}`} style={{ color: "blue", textDecoration: "underline" }}>
+                          Know more
+                        </a>
+                        <br />
+                        <strong>Slots:</strong> {booking.slot} | <strong>Timings:</strong> {booking.timings}
+                        <br />
+                        <strong>Booked By:</strong> {booking.booked_by}
+                        <br />
+                        <strong>Booked Date:</strong> {new Date(booking.booked_date).toLocaleDateString()} {" "}
+                        <strong>Time:</strong> {new Date(booking.booked_date).toLocaleTimeString()}
+                        {i !== hall.bookings.length - 1 && <hr />}
+                      </div>
+                    ))}
                     backgroundImages={hall.imageLinks || []}
                   />
                 ))

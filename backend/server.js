@@ -64,7 +64,25 @@ mc.connect(process.env.DB_URL)
         console.log("Connected to Database..");
     })
     .catch(er => console.log("Error Occurred:", er));
-
+    app.get('/logout', (req, res) => {
+        try {
+          res.clearCookie('token', {
+            path: '/',
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'Strict',
+          });
+      
+          console.log('Logout successful');
+          res.status(200).json({ message: 'Logged out successfully' });
+        } catch (error) {
+          console.error('Unexpected error during logout:', error);
+          res.status(500).json({ message: 'Internal server error during logout' });
+        }
+      });
+      
+      
+      
 app.use((er, req, res, next) => {
     res.status(500).json({ message: `Error Occurred: ${er.message}` });
 });
