@@ -10,7 +10,7 @@ import { motion } from "framer-motion";
 import FormLogin from "../external/FormLogin";
 import axios from "axios";
 import { setUserData } from "../slices/userSlice";
-
+import { useNavigate } from "react-router-dom";
 function RootLayout() {
   const [selectedOption, setSelectedOption] = useState("Bookings");
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -18,6 +18,7 @@ function RootLayout() {
   const [showLoginForm, setShowLoginForm] = useState(false);
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const bookings = useSelector((state) => state.bookings.bookingsData);
   const availability = useSelector((state) => state.bookings.availabilityData);
   const error = useSelector((state) => state.bookings.error);
@@ -29,6 +30,19 @@ function RootLayout() {
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
   };
+  const getSlotTiming = (slot) => {
+    switch (slot) {
+      case "FN":
+        return "10:00 AM to 1:00 PM";
+      case "AN":
+        return "2:00 PM to 5:00 PM";
+      case "Full Day":
+        return "9:00 AM to 5:00 PM";
+      default:
+        return "Slot timing not specified.";
+    }
+  };
+  
   useEffect(() => {
     if (user && user.clubname) {
       console.log("Club Name after login:", user.clubname);
@@ -74,16 +88,16 @@ function RootLayout() {
           fetch("http://localhost:5002/public/get-bookings"),
           fetch("http://localhost:5002/public/get-availability"),
         ]);
-
+  
         const bookingsData = await bookingsRes.json();
         const availabilityData = await availabilityRes.json();
-
+  
         if (bookingsData.success) {
           dispatch(setBookings(bookingsData.hallBookings));
         } else {
           dispatch(setError(bookingsData.message));
         }
-
+  
         if (availabilityData.success) {
           dispatch(setAvailability(availabilityData.data));
         } else {
@@ -93,18 +107,33 @@ function RootLayout() {
         dispatch(setError("Failed to fetch data"));
       }
     };
-
-    fetchData();
+  
+    fetchData(); 
+    const intervalId = setInterval(fetchData, 30000); 
+  
+    return () => clearInterval(intervalId);
   }, [dispatch]);
+  
 
-  const handleBooking = (slot) => {
+  const handleBooking = (slot, hallName) => {
     if (!user) {
       alert("You must log in first to make a booking!");
-      toggleLoginForm(); // ✅ Call the function instead of adding onClick
+      toggleLoginForm();
       return;
     }
-    alert(`Booking ${slot} is successful!`);
+    navigate("/booking", {
+      state: {
+        userDetails: user,
+        hallDetails: {
+          hallName,
+          slot,
+          timing: slot === "FN" ? "10:00 AM - 1:00 PM" : slot === "AN" ? "2:00 PM - 5:00 PM" : "9:00 AM - 4:40 PM",
+          date: formatDate(selectedDate),
+        },
+      },
+    });
   };
+
   
 
   const toggleLoginForm = () => {
@@ -121,23 +150,39 @@ function RootLayout() {
     }))
     .filter((hall) => hall.bookings.length > 0);
 
-  const filteredAvailability = availability.map((hall) => {
-    const bookedSlots = hall.bookings
-      .filter((booking) => booking.booking_date === formatDate(selectedDate))
-      .map((booking) => booking.slot);
-
-    const allSlots = ["FN", "AN"];
-    const availableSlots = allSlots.map((slot) => ({
-      slot,
-      status: bookedSlots.includes(slot) ? "Booked" : "Available",
-      timing: slot === "FN" ? "10:00 AM - 1:00 PM" : "2:00 PM - 5:00 PM",
-    }));
-
-    return {
-      hall_name: hall.hall_name,
-      bookings: availableSlots,
-    };
-  });
+    const filteredAvailability = availability
+    .map((hall) => {
+      const bookedSlots = hall.bookings
+        .filter((booking) => booking.booking_date === formatDate(selectedDate))
+        .map((booking) => booking.slot);
+  
+      const allSlots = ["FN", "AN"];
+      const isFullDayBooked =
+        bookedSlots.includes("Full Day") || (bookedSlots.includes("FN") && bookedSlots.includes("AN"));
+  
+      if (isFullDayBooked) {
+        // If full day is booked, no slots should be available
+        return null;
+      }
+  
+      const availableSlots = allSlots
+        .filter((slot) => !bookedSlots.includes(slot))
+        .map((slot) => ({
+          slot,
+          status: "Available",
+          timing: slot === "FN" ? "10:00 AM - 1:00 PM" : "2:00 PM - 5:00 PM",
+        }));
+  
+      return availableSlots.length > 0
+        ? {
+            hall_name: hall.hall_name,
+            bookings: availableSlots,
+          }
+        : null;
+    })
+    .filter((hall) => hall !== null);
+  
+    
 
   return (
     <div>
@@ -155,9 +200,6 @@ function RootLayout() {
     </button>
   )}
 </header>
-
-
-
       {showLoginForm && (
         <>
           <div className="overlay" onClick={toggleLoginForm}></div>
@@ -197,12 +239,11 @@ function RootLayout() {
                           Know more
                         </a>
                         <br />
-                        <strong>Slots:</strong> {booking.slot} | <strong>Timings:</strong> {booking.timings}
+                        <strong>Slot:</strong> {booking.slot} | <strong>Timings:</strong> {getSlotTiming(booking.slot)}
                         <br />
-                        <strong>Booked By:</strong> {booking.booked_by}
+                        <strong>Booked By:</strong> {booking.clubname.toUpperCase()}
                         <br />
-                        <strong>Booked Date:</strong> {new Date(booking.booked_date).toLocaleDateString()} {" "}
-                        <strong>Time:</strong> {new Date(booking.booked_date).toLocaleTimeString()}
+                        <strong>Booked Date:</strong> {booking.booking_date} 
                         {i !== hall.bookings.length - 1 && <hr />}
                       </div>
                     ))}
@@ -243,7 +284,7 @@ function RootLayout() {
                             {hasBothSlots && (
                               <motion.button
                                 className="availability-btn full-day"
-                                onClick={() => handleBooking("FL", hall.hall_name)}
+                                onClick={() => handleBooking("Full Day", hall.hall_name)}
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
                                 transition={{ type: "spring", stiffness: 300 }}

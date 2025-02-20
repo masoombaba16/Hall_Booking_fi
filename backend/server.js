@@ -17,7 +17,7 @@ const publicApi = require('./public/publicApi');
 const adminApi = require('./Admin/Admin');
 
 app.use(exp.json());
-
+app.use(exp.urlencoded({ extended: true }));
 app.use('/public', publicApi);
 app.use('/admin', adminApi);
 app.post("/send-email", async (req, res) => {

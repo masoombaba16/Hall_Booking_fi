@@ -102,7 +102,7 @@ const FormLogin = () => {
 
           <div className="flex-row">
             <span className="span" onClick={toggleForget}>
-              Forgot password?
+              Forgot password?.
             </span>
           </div>
 

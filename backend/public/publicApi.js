@@ -251,6 +251,139 @@ publicApi.post("/change-password", ExpressAsyncHandler(async (req, res) => {
 }));
 
 
+let otpStore = {}; 
+
+publicApi.post("/send-otp", async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ success: false, message: "Email is required" });
+
+  const otp = Math.floor(100000 + Math.random() * 900000);
+
+  otpStore[email] = { otp, expiresAt: Date.now() + 5 * 60 * 1000 }; // OTP valid for 5 minutes
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "OTP for Hall Booking Confirmation",
+    text: `Your OTP for booking confirmation is: ${otp}. It is valid for 5 minutes.`,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    res.json({ success: true, message: "OTP sent successfully!" });
+  } catch (err) {
+    console.error("Error sending OTP:", err);
+    res.status(500).json({ success: false, message: "Failed to send OTP." });
+  }
+});
+
+// 🎯 Function to get slot timing based on slot code
+const getSlotTiming = (slot) => {
+  switch (slot) {
+    case "FN":
+      return "10:00 AM to 1:00 PM";
+    case "AN":
+      return "2:00 PM to 5:00 PM";
+    case "Full Day":
+      return "9:00 AM to 5:00 PM";
+    default:
+      return "Slot timing not specified.";
+  }
+};
+
+publicApi.post("/book-hall", async (req, res) => {
+  const { hall_name, booking_date, booked_by, slot, event_name, event_description, clubname } = req.body;
+  const hallBookings = req.app.get("hallBookings");
+
+  if (!hall_name || !booking_date || !booked_by || !slot || !event_name || !event_description || !clubname) {
+    return res.status(400).json({ success: false, message: "All fields including club_name are required." });
+  }
+
+  try {
+    const updatedHall = await hallBookings.updateOne(
+      { hall_name: hall_name },
+      {
+        $push: {
+          bookings: {
+            booking_date,
+            booked_by,
+            clubname,
+            slot,
+            event_name,
+            event_description,
+            status: 'pending',
+          },
+        },
+      }
+    );
+
+    if (updatedHall.modifiedCount === 0) {
+      return res.status(404).json({ success: false, message: "Hall not found or booking not added." });
+    }
+
+    const slotTiming = getSlotTiming(slot);
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: booked_by,
+      subject: `🎉 Hall Booking Confirmation ${hall_name.toUpperCase()}`,
+      html: `
+        <h2 style="color:#4CAF50;">Booking Confirmation 🎉</h2>
+        <p>Dear <strong><i>${clubname.toUpperCase()}</i></strong> team,</p>
+        <p>Your booking for <strong><i>${hall_name.toUpperCase()}</i></strong> has been successfully added with the following details:</p>
+        <ul>
+          <li><strong>Event Name:</strong> ${event_name}</li>
+          <li><strong>Description:</strong> ${event_description}</li>
+          <li><strong>Booking Date:</strong> ${booking_date}</li>
+          <li><strong>Slot:</strong> ${slot} - (${slotTiming})</li>
+        </ul>
+        <p style="font-style:italic;">"We’re excited to see your event come to life. Wishing you a successful and memorable gathering!"</p>
+        <p style="color:#555;">With best wishes,<br><strong>Audi Booking,VNR VJIET</strong></p>
+      `,
+    };
+
+    try {
+      await transporter.sendMail(mailOptions);
+      console.log(`📨 Confirmation email sent to ${booked_by}`);
+      // ✅ Respond after email is successfully sent
+      return res.status(200).json({ success: true, message: "Booking added and confirmation email sent! 📩" });
+    } catch (emailError) {
+      console.error("❌ Email Sending Error:", emailError);
+      return res.status(500).json({ success: false, message: "Booking added, but email sending failed." });
+    }
+
+  } catch (error) {
+    console.error("❌ Error while adding booking or sending email:", error);
+    return res.status(500).json({ success: false, message: "Server error. Try again later." });
+  }
+});
+
+
+
+
+publicApi.post("/verify-otpp", (req, res) => {
+  const { email, otp } = req.body;
+  if (!email || !otp) {
+    return res.status(400).json({ success: false, message: "Email and OTP are required." });
+  }
+
+  const userOtpDetails = otpStore[email];
+  if (!userOtpDetails) {
+    return res.status(400).json({ success: false, message: "No OTP found for this email." });
+  }
+
+  if (Date.now() > userOtpDetails.expiresAt) {
+    delete otpStore[email]; // Remove expired OTP
+    return res.status(400).json({ success: false, message: "OTP expired. Please request a new one." });
+  }
+
+  if (otp === userOtpDetails.otp.toString()) {
+    delete otpStore[email]; // OTP verified successfully
+    return res.json({ success: true, message: "OTP verified successfully!" });
+  } else {
+    return res.status(400).json({ success: false, message: "Invalid OTP. Please try again." });
+  }
+});
+
 
 publicApi.get('/validate-token', (req, res) => {
   const token = req.cookies.token;

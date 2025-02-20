@@ -1,0 +1,53 @@
+.booking-page {
+    text-align: center;
+    padding: 2rem;
+  }
+  
+  .booking-details {
+    margin: 1rem auto;
+    padding: 1.5rem;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    width: 50%;
+    background-color: #f9f9f9;
+  }
+
+  .confirm-btn, .back-btn {
+    margin: 1rem;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: none;
+    width: 150px;
+  }
+  
+  .confirm-btn {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  .back-btn {
+    background-color: #f44336;
+    color: white;
+  }
+  
+.event-form{
+    display: flex;
+    flex-direction: column;
+    max-width: 400px;
+    margin: auto;
+    gap: 20px;
+}
+.event-form input{
+    padding: 10px;
+    font-size: 16px;
+    text-align: center;
+    border-radius: 5px;
+}
+.file{
+    margin: auto;
+}
+.back-btn-form-opened{
+    position: absolute;
+    bottom: 14vh;
+}
