@@ -219,7 +219,11 @@ function RootLayout() {
         </div>
 
         <Radio onChange={setSelectedOption} />
-        <CalendarComponent selectedDate={selectedDate} onDateChange={setSelectedDate} />
+        <CalendarComponent
+  selectedDate={selectedDate}
+  onDateChange={setSelectedDate}
+  selectedOption={selectedOption}
+/>
 
         {error && <p className="error">{error}</p>}
         {bookingStatus && <p className="success">{bookingStatus}</p>}
