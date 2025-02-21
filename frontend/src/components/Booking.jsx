@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./Booking.css";
 import axios from "axios";
+import Loader from "./Loader"; // ⬅️ Import the Loader
 
 function Booking() {
   const { state } = useLocation();
@@ -12,8 +13,8 @@ function Booking() {
   const [eventName, setEventName] = useState("");
   const [eventDescription, setEventDescription] = useState("");
   const [otp, setOtp] = useState("");
+  const [loading, setLoading] = useState(false); // 🔄 Track loading state
 
-  // 🔄 Redirect if state is missing
   useEffect(() => {
     if (!state || !state.userDetails || !state.hallDetails) {
       console.warn("⚠️ No booking details provided. Redirecting to home.");
@@ -27,6 +28,7 @@ function Booking() {
   // ✅ Handle OTP request
   const handleOtpRequest = async (e) => {
     e.preventDefault();
+    setLoading(true); // 🔄 Start loading
     try {
       const response = await axios.post("http://localhost:5002/public/send-otp", {
         email: userDetails.email,
@@ -40,11 +42,14 @@ function Booking() {
     } catch (error) {
       console.error("❌ Error sending OTP:", error);
       alert("Error sending OTP. Try again.");
+    } finally {
+      setLoading(false); // 🔄 Stop loading
     }
   };
 
   // 🚀 Handle OTP verification
   const handleOtpVerification = async () => {
+    setLoading(true); // 🔄 Start loading
     try {
       const response = await axios.post(
         "http://localhost:5002/public/verify-otpp",
@@ -54,18 +59,21 @@ function Booking() {
 
       if (response.data.success) {
         alert("🎉 OTP verified. Booking confirmed!");
-        await makeBookingRequest(); // Proceed to booking after OTP verification
+        await makeBookingRequest(); // Proceed to booking
       } else {
         alert("⚡ OTP Verification failed: " + response.data.message);
       }
     } catch (error) {
       console.error("❌ Error verifying OTP:", error);
       alert("OTP verification failed. Please try again.");
+    } finally {
+      setLoading(false); // 🔄 Stop loading
     }
   };
 
   // 📦 Make booking request
   const makeBookingRequest = async () => {
+    setLoading(true); // 🔄 Start loading
     try {
       const bookingData = {
         hall_name: hallDetails.hallName,
@@ -89,15 +97,20 @@ function Booking() {
 
       if (bookingResponse.data.success) {
         alert("🎉 Booking successful!");
-        navigate("/"); // 🌟 Navigate after successful booking
+        navigate("/"); // 🌟 Navigate after booking
       } else {
         alert("⚡ Booking failed: " + bookingResponse.data.message);
       }
     } catch (error) {
       console.error("❌ Error during booking:", error);
       alert("Booking process failed. Please try again.");
+    } finally {
+      setLoading(false); // 🔄 Stop loading
     }
   };
+
+  // ⏳ Show loader while loading
+  if (loading) return <Loader />;
 
   return (
     <div className="booking-page">

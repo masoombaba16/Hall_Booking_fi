@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Otp from './external/Otp';
 import ForgotChange from './external/ForgotChange';
 import Booking from './components/Booking';
+import Loader from './components/Loader';
 function App() {
   // Define the router with routes
   const router = createBrowserRouter([
@@ -23,6 +24,10 @@ function App() {
     {
       path:'/booking',
       element:<Booking/>
+    },
+    {
+      path:'loader',
+      element:<Loader/>
     }
   ]);
 

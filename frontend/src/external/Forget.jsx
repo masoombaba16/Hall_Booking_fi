@@ -2,52 +2,61 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Loader from '../components/Loader';
 
 const Forget = () => {
   const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const response = await axios.post('http://localhost:5002/public/forgot-password', { email });
       alert(`Password Reset OTP has been Shared to your Email ID: ${email}. Please check your inbox.`);
-      navigate('/otp', { state: { email } }); // ✅ Navigating to OTP component with email
+      navigate('/otp', { state: { email } });
     } catch (error) {
       console.error('Error sending email:', error);
       alert('Email ID not Found in Database. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <StyledWrapper>
-      <div className="form-container">
-        <div className="logo-container">Forgot Password</div>
-        <form className="form" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <button className="form-submit-btn" type="submit">
-            Send Email
-          </button>
-        </form>
-        <p className="signup-link">
-          Don't have an account?
-          <a href="#" className="signup-link link">
-            {' '}
-            Sign up now
-          </a>
-        </p>
-      </div>
+      {loading ? (
+        <Loader />
+      ) : (
+        <div className="form-container">
+          <div className="logo-container">Forgot Password</div>
+          <form className="form" onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <button className="form-submit-btn" type="submit">
+              Send Email
+            </button>
+          </form>
+          <p className="signup-link">
+            Don't have an account?
+            <a href="#" className="signup-link link">
+              {' '}
+              Sign up now
+            </a>
+          </p>
+        </div>
+      )}
     </StyledWrapper>
   );
 };
@@ -154,4 +163,4 @@ const StyledWrapper = styled.div`
   }
 `;
 
-export default Forget;
+export default Forget; 

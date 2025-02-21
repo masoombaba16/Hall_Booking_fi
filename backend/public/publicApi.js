@@ -62,6 +62,14 @@ publicApi.post("/login", async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials", success: false });
     }
 
+    // Check user status
+    if (user.status !== "active") {
+      return res.status(403).json({
+        message: `Your ${user.clubname.toUpperCase()} club has been blocked. Contact admin. More info can be found in the email sent to you.`,
+        success: false,
+      });
+    }
+
     // Verify password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
@@ -69,7 +77,7 @@ publicApi.post("/login", async (req, res) => {
     }
 
     // Remove password from user object before sending
-    const { password: _, ...userData } = user; // Exclude password
+    const { password: _, ...userData } = user;
 
     // Generate JWT token with userData
     const token = jwt.sign(userData, JWT_SECRET, { expiresIn: "1h" });
@@ -85,13 +93,14 @@ publicApi.post("/login", async (req, res) => {
       message: "Login successful",
       success: true,
       token,
-      user: userData, // Send full user data except password
+      user: userData,
     });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Server error", success: false });
   }
 });
+
 
 const nodemailer = require('nodemailer'); 
 
@@ -296,13 +305,15 @@ publicApi.post("/book-hall", async (req, res) => {
   const hallBookings = req.app.get("hallBookings");
 
   if (!hall_name || !booking_date || !booked_by || !slot || !event_name || !event_description || !clubname) {
-    return res.status(400).json({ success: false, message: "All fields including club_name are required." });
+    return res.status(400).json({ success: false, message: "All fields are required." });
   }
 
   try {
-    const updatedHall = await hallBookings.updateOne(
+    // 🔄 Insert booking or create hall if it doesn't exist
+    const result = await hallBookings.updateOne(
       { hall_name: hall_name },
       {
+        $setOnInsert: { hall_name: hall_name }, // Create hall if not exists
         $push: {
           bookings: {
             booking_date,
@@ -314,11 +325,16 @@ publicApi.post("/book-hall", async (req, res) => {
             status: 'pending',
           },
         },
-      }
+      },
+      { upsert: true }
     );
 
-    if (updatedHall.modifiedCount === 0) {
-      return res.status(404).json({ success: false, message: "Hall not found or booking not added." });
+    if (result.upsertedCount > 0) {
+    } else if (result.modifiedCount > 0) {
+      console.log(`✅ Booking added to existing hall: ${hall_name}.`);
+    } else {
+      console.log(`⚠️ Booking was not added.`);
+      return res.status(400).json({ success: false, message: `Booking was not added.` });
     }
 
     const slotTiming = getSlotTiming(slot);
@@ -337,25 +353,21 @@ publicApi.post("/book-hall", async (req, res) => {
           <li><strong>Slot:</strong> ${slot} - (${slotTiming})</li>
         </ul>
         <p style="font-style:italic;">"We’re excited to see your event come to life. Wishing you a successful and memorable gathering!"</p>
-        <p style="color:#555;">With best wishes,<br><strong>Audi Booking,VNR VJIET</strong></p>
+        <p style="color:#555;">With best wishes,<br><strong>Audi Booking, VNR VJIET</strong></p>
       `,
     };
 
-    try {
-      await transporter.sendMail(mailOptions);
-      console.log(`📨 Confirmation email sent to ${booked_by}`);
-      // ✅ Respond after email is successfully sent
-      return res.status(200).json({ success: true, message: "Booking added and confirmation email sent! 📩" });
-    } catch (emailError) {
-      console.error("❌ Email Sending Error:", emailError);
-      return res.status(500).json({ success: false, message: "Booking added, but email sending failed." });
-    }
+    await transporter.sendMail(mailOptions);
+    console.log(`📨 Confirmation email sent to ${booked_by}`);
+    return res.status(200).json({ success: true, message: "Booking added and confirmation email sent! 📩" });
 
   } catch (error) {
     console.error("❌ Error while adding booking or sending email:", error);
     return res.status(500).json({ success: false, message: "Server error. Try again later." });
   }
 });
+
+
 
 
 

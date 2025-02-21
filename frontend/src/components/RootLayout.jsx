@@ -11,6 +11,7 @@ import FormLogin from "../external/FormLogin";
 import axios from "axios";
 import { setUserData } from "../slices/userSlice";
 import { useNavigate } from "react-router-dom";
+import weblogo from '../images/weblogo.png'
 function RootLayout() {
   const [selectedOption, setSelectedOption] = useState("Bookings");
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -109,7 +110,7 @@ function RootLayout() {
     };
   
     fetchData(); 
-    const intervalId = setInterval(fetchData, 30000); 
+    const intervalId = setInterval(fetchData, 5000); 
   
     return () => clearInterval(intervalId);
   }, [dispatch]);
@@ -161,7 +162,6 @@ function RootLayout() {
         bookedSlots.includes("Full Day") || (bookedSlots.includes("FN") && bookedSlots.includes("AN"));
   
       if (isFullDayBooked) {
-        // If full day is booked, no slots should be available
         return null;
       }
   
@@ -187,6 +187,7 @@ function RootLayout() {
   return (
     <div>
 <header>
+  <div className="logo"><img src={weblogo} alt="" className="weblogo" /></div>
   {user && user.clubname? (
     <>
 <p className="user-greeting">{user?.clubname}..!</p>
@@ -225,7 +226,6 @@ function RootLayout() {
   selectedOption={selectedOption}
 />
 
-        {error && <p className="error">{error}</p>}
         {bookingStatus && <p className="success">{bookingStatus}</p>}
 
         <div className="data-container">

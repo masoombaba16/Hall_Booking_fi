@@ -121,4 +121,14 @@
   border: none;
   cursor: pointer;
 }
+.weblogo{
+  width: 110px;
+  position: absolute;
+  left: 20px;
+  top: 5px;
+  border-radius: 2px;
+}
+.weblogo:hover{
+  scale: 1.05;
+}
   

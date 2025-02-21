@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import Loader from '../components/Loader';
+
 const Otp = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { email } = location.state || {}; 
+  const { email } = location.state || {};
   const [otp, setOtp] = useState('');
+  const [loading, setLoading] = useState(false); // ✅ Added loading state
 
   // ✅ Handle OTP input change
   const handleOtpChange = (e, index) => {
-    const value = e.target.value.replace(/\D/g, ''); // Allow only digits
+    const value = e.target.value.replace(/\D/g, '');
     if (value.length === 1) {
       const newOtp = otp.substring(0, index) + value + otp.substring(index + 1);
       setOtp(newOtp);
@@ -26,6 +28,7 @@ const Otp = () => {
       alert('Please enter the complete 4-digit OTP.');
       return;
     }
+    setLoading(true); // ✅ Show loader when API call starts
     try {
       const response = await axios.post(
         'http://localhost:5002/public/verify-otp',
@@ -33,65 +36,69 @@ const Otp = () => {
         { headers: { 'Content-Type': 'application/json' } }
       );
       alert(response.data.message);
-
-      // ✅ Navigate to ForgotChange component after successful verification
       navigate('/forgot-change', { state: { email } });
-
     } catch (error) {
       console.error('OTP verification failed:', error.response ? error.response.data : error);
       alert('Invalid OTP or verification failed. Please try again.');
+    } finally {
+      setLoading(false); // ✅ Hide loader after API call completes
     }
   };
 
   // ✅ Handle OTP Resend
- // ✅ Handle OTP Resend
-const handleResend = async (e) => {
+  const handleResend = async (e) => {
     e.preventDefault();
+    setLoading(true); // ✅ Show loader when resend starts
     try {
-      const response = await axios.post(
+      await axios.post(
         'http://localhost:5002/public/forgot-password',
         { email },
         { headers: { 'Content-Type': 'application/json' } }
       );
       alert(`OTP has been resent to your Email ID: ${email}`);
-      setOtp(''); // ✅ Clear OTP state
-  
-      // ✅ Clear all input fields after resend
+      setOtp('');
       [...Array(4)].forEach((_, index) => {
         const input = document.getElementById(`input${index + 1}`);
         if (input) input.value = '';
       });
-  
-      // ✅ Focus on the first input after clearing
       document.getElementById('input1').focus();
     } catch (error) {
       console.error('Error sending email:', error.response ? error.response.data : error);
       alert('Email ID not found in the database. Please try again.');
+    } finally {
+      setLoading(false); // ✅ Hide loader after resend completes
     }
   };
-  
 
   return (
     <StyledWrapper>
-      <form className="form" onSubmit={handleVerify}>
-        <div className="title">OTP Verification</div>
-        <p className="message">
-          We have sent a verification code to your Email ID: {email}
-        </p>
-        <div className="inputs">
-          {[...Array(4)].map((_, index) => (
-            <input
-              key={index}
-              id={`input${index + 1}`}
-              type="text"
-              maxLength={1}
-              onChange={(e) => handleOtpChange(e, index)}
-            />
-          ))}
-        </div>
-        <button className="resend" onClick={handleResend}>Resend OTP</button>
-        <button className="action-ver" type="submit">Verify Me</button>
-      </form>
+      {loading ? (
+        <Loader /> // ✅ Show Loader component when loading
+      ) : (
+        <form className="form" onSubmit={handleVerify}>
+          <div className="title">OTP Verification</div>
+          <p className="message">
+            We have sent a verification code to your Email ID: {email}
+          </p>
+          <div className="inputs">
+            {[...Array(4)].map((_, index) => (
+              <input
+                key={index}
+                id={`input${index + 1}`}
+                type="text"
+                maxLength={1}
+                onChange={(e) => handleOtpChange(e, index)}
+              />
+            ))}
+          </div>
+          <button className="resend" onClick={handleResend} disabled={loading}>
+            Resend OTP
+          </button>
+          <button className="action-ver" type="submit" disabled={loading}>
+            Verify Me
+          </button>
+        </form>
+      )}
     </StyledWrapper>
   );
 };
