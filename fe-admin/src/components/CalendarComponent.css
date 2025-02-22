@@ -1,0 +1,290 @@
+.calendar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    min-width: 80vw;
+    max-width: 95vw;
+    min-height: 81.5vh;
+    margin: auto;
+  }
+  .conte{
+    margin:auto;  
+    color: red;
+  }
+  .conten{
+    margin:auto;
+    color:rgb(92, 7, 25);
+  }
+  .calendar-layout {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 5%;
+  }
+  
+  .cal {
+    max-width: 65vw;
+  }
+  
+  .bookings {
+    display: flex;
+    background-color: beige;
+    flex-direction: column;
+    min-width: 350px;
+    margin-top: 6vh;
+    min-height: 150px;
+    max-height: 72vh; /* Set a fixed height for the bookings section */
+    overflow-y: auto;
+    align-items: flex-start;
+    border-radius: 10px;
+  }
+  .bookings h2 {
+    text-align: center;
+    width: 100%;
+    margin-top: 10px;
+  }
+  .calendar-title {
+    font-size: 20px;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  .react-calendar {
+    width: 100%;
+    height: 71.5vh;
+    border: none;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+  }
+  
+  .react-calendar__navigation__arrow {
+    color: black;
+    background-color: aliceblue;
+  }
+  
+  .react-calendar__navigation__arrow:hover {
+    background-color: #f0f0f0; 
+    cursor: pointer; 
+  }
+  
+  .react-calendar__navigation__label__labelText {
+    color: maroon;
+  }
+  
+  button.react-calendar__navigation__label {
+    max-width: 15vw;
+    padding: 10px;
+    text-align: center;
+  }
+  
+  .react-calendar__navigation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+    border-bottom: 2px solid #f0f0f0;
+    background-color: #f9f9f9;
+    padding: 10px 0;
+  }
+  
+.react-calendar__tile.react-calendar__year-view__months__month{
+    color: black;
+}
+
+.react-calendar__tile.react-calendar__decade-view__years__year{
+    color: black;
+}
+.react-calendar__tile.react-calendar__century-view__decades__decade{
+    color: black;
+}
+/* Set the color of the days in the current month to black */
+.react-calendar__month-view__days__day {
+    color: black;  /* Default color for all days */
+  }
+  
+  /* Exclude Sundays (the first day of the week on the calendar, typically index 0) */
+  .react-calendar__month-view__days__day:nth-child(7n) {
+    color:red; 
+  }
+  
+  /* Optional: Styling for inactive days (days from previous/next month) */
+  .react-calendar__tile:disabled {
+    color: #ccc;  /* Light gray for disabled days */
+  }
+  .react-calendar__tile.react-calendar__month-view__days__day.react-calendar__month-view__days__day--neighboringMonth{
+    color: rgba(128, 128, 128, 0.603);
+  }
+  .react-calendar__tile.react-calendar__month-view__days__day {
+    min-height: 8.5vh;
+  }
+ .react-calendar__tile.react-calendar__tile--now.react-calendar__tile--active.react-calendar__tile--range.react-calendar__tile--rangeStart.react-calendar__tile--rangeEnd.react-calendar__tile--rangeBothEnds.react-calendar__month-view__days__day.react-calendar__month-view__days__day--neighboringMonth{
+    color: aliceblue;
+ }
+ .react-calendar__tile.react-calendar__tile--active.react-calendar__tile--range.react-calendar__tile--rangeStart.react-calendar__tile--rangeEnd.react-calendar__tile--rangeBothEnds.react-calendar__month-view__days__day.react-calendar__month-view__days__day--weekend.react-calendar__month-view__days__day--neighboringMonth{
+    color: aliceblue;
+ }
+ .react-calendar__tile.react-calendar__tile--active.react-calendar__tile--range.react-calendar__tile--rangeStart.react-calendar__tile--rangeEnd.react-calendar__tile--rangeBothEnds.react-calendar__month-view__days__day.react-calendar__month-view__days__day--neighboringMonth{
+    color:aliceblue;
+ }
+ .legend{
+    position: absolute;
+    left: 56vw;
+    top: 88vh;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+ }
+ .available,.unavailable{
+    width: 20px;
+    height: 20px;
+    background-color: green;
+    border-radius: 50%;
+ }
+ .unavailable{
+    background-color: red;
+ }
+ .msp{
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+ }
+ .booking-card {
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 8px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.booking-card h3 {
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.booking-card p {
+  margin: 3px 0;
+}
+.each-hall{
+  background: hsla(217, 100%, 50%, 1);
+  background: linear-gradient(90deg, hsla(217, 100%, 50%, 1) 0%, hsla(186, 100%, 69%, 1) 100%);
+  background: -moz-linear-gradient(90deg, hsla(217, 100%, 50%, 1) 0%, hsla(186, 100%, 69%, 1) 100%);
+  background: -webkit-linear-gradient(90deg, hsla(217, 100%, 50%, 1) 0%, hsla(186, 100%, 69%, 1) 100%);
+  filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#0061FF", endColorstr="#60EFFF", GradientType=1 );  margin: auto;
+  width: 50vw;
+  padding:10px;
+  border-radius: 10px;
+}
+.hall-card{
+  padding: 15px;
+}
+.each-hall-ava{
+  background: hsla(217, 100%, 50%, 1);
+  background: linear-gradient(90deg, hsla(217, 100%, 50%, 1) 0%, hsla(186, 100%, 69%, 1) 100%);
+  background: -moz-linear-gradient(90deg, hsla(217, 100%, 50%, 1) 0%, hsla(186, 100%, 69%, 1) 100%);
+  background: -webkit-linear-gradient(90deg, hsla(217, 100%, 50%, 1) 0%, hsla(186, 100%, 69%, 1) 100%);
+  filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#0061FF", endColorstr="#60EFFF", GradientType=1 );  margin: auto;
+  width: 20vw;
+  padding:10px;
+  border-radius: 10px;
+}
+.each-hall h3{
+  text-align: center;
+  font-style: italic;
+  font-size: 18px;
+}
+.last{
+  color: #B2B2B2;
+  font-size: 14px;
+}
+p{
+  padding: 3px;
+}
+.know{
+  display: block;
+  min-width: 110px;
+  margin: auto;
+}
+.sec{
+  text-align: center;
+}
+#halname{
+  font-size: 18px;
+  text-align: center;
+}
+.slot-buttons {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.slot-button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 128px;
+  min-height: 60px;
+}
+
+.slot-button:hover {
+  background-color: #45a049;
+}
+
+.slot-name {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.slot-time {
+  font-size: 12px;
+}
+
+.toggle-button-container {
+  display: flex;
+  margin: auto;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.toggle-button {
+  width: 100px;
+  border: none;
+  background-color: maroon;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 10px;
+}
+
+.toggle-button.active {
+  background-color: #4caf50; /* Active button color */
+  color: white;
+}
+
+.toggle-button:hover {
+  background-color: #ddd;
+}
+
+.toggle-button:focus {
+  outline: none;
+}

@@ -1,0 +1,67 @@
+.calendar-container-slot {
+    width: 80%;
+    margin: 0 auto;
+    text-align: center;
+  }
+  
+  .calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    max-width: 600px;
+    margin: 20px auto;
+  }
+  
+  .calendar-cell {
+    padding: 15px;
+    background-color: #f4f4f4;
+    cursor: pointer;
+    border-radius: 5px;
+    text-align: center;
+  }
+  
+  .calendar-cell:hover {
+    background-color: #ddd;
+  }
+  
+  .selected {
+    background-color: #4caf50;
+    color: white;
+  }
+  
+  .available {
+    background-color: #ffeb3b;
+  }
+  
+  .empty-cell {
+    background-color: transparent;
+  }
+  
+  .availability-info {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 80%;
+    max-width: 600px;
+    margin: 20px auto;
+  }
+  
+  .availability-info h4 {
+    font-size: 18px;
+  }
+  
+  .availability-info ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .availability-info li {
+    background-color: #f4f4f4;
+    padding: 8px;
+    margin: 5px 0;
+    border-radius: 5px;
+  }
+  .calendar-container-slot{
+    margin-top: 100px;
+  }

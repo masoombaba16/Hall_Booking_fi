@@ -1,0 +1,229 @@
+:root {
+    --dark-red: rgb(142, 4, 4);
+    --red: rgb(219, 51, 51);
+    --light-red: rgb(255, 243, 243);
+    --dark-grey: rgb(31, 31, 31);
+    --light-grey: rgb(85, 85, 85);
+    --yellow: rgb(255, 182, 25);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+.name {
+    font-size: 1.1rem;
+    font-style: italic;
+    font-weight: 600;
+}
+
+.header {
+    align-items: center;
+    position: fixed;
+    width: 100%;
+    height: 13%;
+    background-color: white;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 1px 8px;
+    z-index: 3;
+    padding: 6vh;
+    gap: 1.5em;
+}
+
+.header .logo {
+    display: flex;
+    color: var(--dark-red);
+    font-size: 15px;
+    font-family: cursive;
+    width: 14%;
+    text-align: center;
+    border-radius: 10px;
+    border: 2px solid white;
+    cursor: pointer;
+}
+
+.mainlogo {
+    height: 11vh;
+    border-radius: 5px;
+    box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;
+}
+
+.header .logo:hover {
+    scale: 1.05;
+}
+
+.menu-card {
+    width: 40px;
+    height: 40px;
+}
+
+.signin {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    gap: 10px;
+}
+
+.signin-logo {
+    display: inline;
+    width: 40px;
+    height: 40px;
+}
+
+.signin:hover {
+    color: var(--dark-red);
+}
+
+.header .search {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--dark-red);
+    border-radius: 10px;
+}
+
+.header .search:hover {
+    border: 2px solid var(--red);
+}
+
+.header .search img {
+    height: 40px;
+    padding: 10px;
+    margin-right: 5px;
+}
+
+.header .search input {
+    font-size: 14px;
+    outline: none; 
+    border: none;
+    height: 40px;
+    border-radius: 10px;
+    min-width: 30vw;
+    max-width: 32vw;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25%, 75% { transform: translateX(-10px); }
+    50% { transform: translateX(10px); }
+}
+
+.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+.loc {
+    min-width: 15%;
+    color: black;
+    display: flex;
+    flex-direction: column; 
+    align-items: flex-start; 
+    gap: 8px;
+}
+
+.cont {
+    border-radius: 10px;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    padding: 10px;
+    margin-left: 5%;
+    color: rgb(36, 92, 152);
+}
+
+.cont p {
+    padding: 3px;
+}
+
+.header .menu {
+    display: flex;
+    font-weight: 800;
+    font-size: 20px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.header .menu:hover {
+    color: var(--dark-red);
+}
+
+.exit-logo {
+    width: 2vw;
+    position: fixed;
+    top: 18%;
+    left: 21%;
+    background-color: rgba(255, 0, 0, 0.464);
+    border-radius: 50%;
+    padding: 5px;
+    cursor: pointer;
+}
+/* For scaling the exit logo on hover */
+.exit-logo:hover {
+    transform: scale(1.5);  /* This scales the element to 1.5 times its original size */
+    transition: transform 0.3s ease;  /* Smooth transition effect */
+  }
+  
+.bookings-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 10px;
+    margin: 20px 0;
+    background: linear-gradient(90deg, #0073e6, #005bb5);
+    color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.calender {
+    position: relative;
+    right: 6%;
+    width: 30px;
+    padding: 2px;
+}
+
+.calender:hover {
+    background-color: lightgreen;
+    border: none;
+    border-radius: 25%;
+}
+
+.title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+.title i:hover, .calender:hover {
+    cursor: pointer;
+}
+
+.date {
+    font-size: 1.2rem;
+    margin: 5px 0 0 0;
+    font-style: italic;
+}
+
+.sideMenu {
+    position: fixed;
+    z-index: 99999;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 2rem;
+    color: white;
+}
+.main-cont{
+    padding-top: 8%;
+}

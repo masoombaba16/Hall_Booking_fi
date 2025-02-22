@@ -1,0 +1,145 @@
+/* Main Container */
+.main-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: linear-gradient(to bottom right, #1d1f21, #4a4e69);
+  color: white;
+  overflow: hidden;
+  position: relative;
+  text-align: center;
+}
+
+/* Text Animations */
+.text-container {
+  z-index: 2;
+  animation: fade-in 2s ease forwards;
+}
+
+.animated-text {
+  font-size: 3rem;
+  font-weight: 400;
+  opacity: 0;
+  transform: translateY(-20px);
+  animation: slide-down 1.5s ease forwards;
+}
+
+.highlighted-text {
+  font-size: 4rem;
+  font-weight: 700;
+  background: linear-gradient(to right, #ff6a6a, #ffc93c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: glow 3s infinite;
+}
+
+.description {
+  margin-top: 1rem;
+  font-size: 1.5rem;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fade-in-up 2.5s ease forwards;
+}
+
+.description span {
+  font-weight: bold;
+  color: #ffc93c;
+}
+
+/* Circles for Animation */
+.animation-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.circle {
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  animation: float 8s infinite;
+}
+
+.circle.small {
+  width: 100px;
+  height: 100px;
+  top: 30%;
+  left: 20%;
+  animation-duration: 6s;
+}
+
+.circle.medium {
+  width: 150px;
+  height: 150px;
+  top: 60%;
+  left: 40%;
+}
+
+.circle.large {
+  width: 200px;
+  height: 200px;
+  top: 10%;
+  left: 70%;
+  animation-duration: 10s;
+}
+
+/* Animations */
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-down {
+  0% {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(-20px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 0.7;
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    text-shadow: 0 0 10px #ffc93c, 0 0 20px #ff6a6a, 0 0 30px #ff6a6a;
+  }
+  50% {
+    text-shadow: 0 0 20px #ffc93c, 0 0 40px #ff6a6a, 0 0 60px #ff6a6a;
+  }
+}

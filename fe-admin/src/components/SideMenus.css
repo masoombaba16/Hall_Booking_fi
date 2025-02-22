@@ -1,0 +1,145 @@
+/* Base side menu styles */
+.sideMenu {
+    margin-top: 13.25vh;
+    position: fixed;
+    z-index: 9999;
+    top: 0;
+    right: 0;
+    width: 20vw; /* Default width */
+    height: 86.75vh;
+    background-color: var(--light-red);
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+    overflow-y: auto;
+    transition: width 0.3s ease-in-out; /* Smooth transition for width */
+  }
+  
+  /* When the menu is expanded (after calendar click) */
+  .sideMenu.expanded {
+    width: 37vw; /* Adjust the expanded width */
+  }
+  
+  .sideMenu.expanded .hall-options {
+    min-width: 20vw;
+  }
+  
+  .sideMenu.expanded .exit-logo {
+    left: 37.5%;
+  }
+  
+  /* When the menu is closed (collapsed) */
+  .sideMenu.closed {
+    transform: translateX(100%); /* Closed position */
+  }
+  
+  /* Profile section */
+  .sideMenu .profile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: var(--dark-red);
+    color: white;
+    gap: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .sideMenu .profile .pf {
+    margin-left: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .sideMenu .profile-logo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid white;
+    padding: 5px;
+    object-fit: cover;
+  }
+  
+  /* Content section */
+  .sideMenu .content {
+    padding: 10px;
+  }
+  
+  .title {
+    font-size: 1em;
+  }
+  
+  .sideMenu .hall-menu-item.active {
+    background-color: #4caf50; /* Green background for active menu item */
+    color: white; /* White text for the active menu item */
+  }
+  
+  /* Add hover effect */
+  .sideMenu .hall-menu-item:hover {
+    background-color: #45a049;
+  }
+  /* Hall menu item */
+  .sideMenu .hall-menu-item {
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 10px 0;
+    padding: 10px;
+    background: var(--red);
+    color: white;
+    border-radius: 5px;
+    text-align: center;
+    transition: background 0.3s ease;
+  }
+  
+  .sideMenu .hall-menu-item:hover {
+    background: var(--dark-red);
+  }
+  
+  /* Hall options */
+  .sideMenu .hall-options {
+    max-width: 10vw;
+    margin: auto;
+    list-style: none;
+    padding: 10px;
+    background-color: var(--light-grey);
+    border-radius: 5px;
+    margin-top: 10px;
+  }
+  
+  .sideMenu .hall-options li {
+    padding: 8px;
+    cursor: pointer;
+    color: white;
+    background: var(--yellow);
+    margin-bottom: 5px;
+    border-radius: 4px;
+    text-align: center;
+    transition: background 0.3s ease;
+  }
+  
+  .sideMenu .hall-options li:hover {
+    background: var(--dark-red);
+    color: white;
+  }
+  
+  /* Calendar container */
+  .calendar-container {
+    display: flex;
+    padding: 10px;
+    margin-top: 10px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .calendar-container:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+  
+  .sideMenu .calender {
+    cursor: pointer;
+  }
+  

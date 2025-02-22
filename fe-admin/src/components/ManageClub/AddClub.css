@@ -1,0 +1,50 @@
+.password-group {
+  position: relative;
+}
+
+#password{
+  max-width: 80%;
+  margin-left: 15px;  
+}
+
+.password-input-wrapper input {
+  flex: 1;
+}
+#email{
+  margin-left: 40px;
+  width: 80%;
+}
+#department{
+  width: 74%;
+}
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+#username{
+  margin-left: 6px;
+}
+.toggle-password-visibility {
+  position: absolute;
+  right: 100px;
+  margin: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: px;
+  display: flex;
+  align-items: center;
+}
+
+.toggle-password-visibility img {
+  width: 20px;
+  height: 20px;
+  margin: auto;
+  margin-bottom: 10px;
+}
+button.toggle-password-visibility{
+  width: auto;
+}
+
+
